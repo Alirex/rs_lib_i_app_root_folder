@@ -41,11 +41,14 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-### Update dependencies
+### Upgrade dependencies
 
 ```shell
-cargo update
+cargo upgrade
 ```
+
+- [cargo upgrade](https://crates.io/crates/cargo-edit#cargo-upgrade)
+  - `cargo install cargo-edit --no-default-features --features "upgrade"`
 
 ## Other
 
