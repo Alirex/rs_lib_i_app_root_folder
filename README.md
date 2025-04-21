@@ -21,7 +21,8 @@ You can see the same thing in Python as:
 
 So, this can be useful, also, for projects that moving from Python (with this approach) to Rust.
 
-This path can be used to access files from the repository, and that does not really depend on the implementation of the app.
+This path can be used to access files from the repository, and that does not really depend on the implementation of the
+app.
 
 ### Why do I need this library? And not implement it by myself?
 
@@ -63,3 +64,7 @@ Maybe you will be interested in:
   - Path to the folder with the Cargo.toml file of the crate (not the workspace)
     - https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates
     - https://gist.github.com/Alirex/db9655d8d6f2ddc27ce0cf8f195f0cba
+
+- Ways to get other useful paths:
+  - Platform-specific, user-accessible locations
+    - https://crates.io/crates/directories
