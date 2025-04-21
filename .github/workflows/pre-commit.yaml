@@ -1,0 +1,27 @@
+name: pre-commit
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+# Use https://github.com/actions/cache to cache all
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # For git checkout
+
+      - uses: actions/setup-python@v5
+        # For python setup
+        #        with:
+        #          python-version: 3.13
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        # For rust setup
+
+      - uses: pre-commit/action@v3.0.0
+        # For installation and run pre-commit

@@ -1,0 +1,23 @@
+[package]
+name = "app_root_folder"
+version = "0.1.0"
+edition = "2024"
+
+description = "Get the path to the app root folder"
+
+license = "ISC"
+documentation = "https://docs.rs/app_root_folder"
+repository = "https://github.com/Alirex/rs_lib_i_app_root_folder"
+readme = "README.md"
+
+keywords = [
+    "path",
+]
+
+categories = [
+    "filesystem",
+]
+
+
+
+[dependencies]
