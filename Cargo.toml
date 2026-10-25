@@ -1,23 +1,37 @@
 [package]
 name = "app_root_folder"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
+rust-version = "1.85"
 
-description = "Get the path to the app root folder"
-
+description = "Get the path to the app root folder (the folder of the executable, or of the project when run from target/)"
 license = "ISC"
 documentation = "https://docs.rs/app_root_folder"
 repository = "https://github.com/Alirex/rs_lib_i_app_root_folder"
 readme = "README.md"
+include = ["/src", "/README.md", "/LICENSE.txt", "/CHANGELOG.md"]
 
-keywords = [
-    "path",
-]
-
-categories = [
-    "filesystem",
-]
-
-
+keywords = ["path", "root", "executable", "directory"]
+categories = ["filesystem"]
 
 [dependencies]
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+missing_debug_implementations = "warn"
+
+[lints.rustdoc]
+broken_intra_doc_links = "warn"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
+dbg_macro = "warn"
+print_stdout = "warn"
+print_stderr = "warn"
+todo = "warn"
+unimplemented = "warn"
