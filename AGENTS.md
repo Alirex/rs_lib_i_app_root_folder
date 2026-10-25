@@ -2,8 +2,8 @@
 
 `app_root_folder` (crates.io) is a small Rust library with no dependencies: the root folder of the running app (the
 executable's folder, or the folder with `target` when run from a cargo build folder). Public API:
-`get_app_root_folder`, `get_app_root_folder_by_executable`, `get_executable_path` (`src/`). Edition 2024, MSRV in
-`Cargo.toml`, toolchain pinned in `rust-toolchain.toml`.
+`get_app_root_folder`, `get_app_root_folder_by_executable`, `get_executable_path`, their `try_` variants and
+`AppRootFolderError` (`src/`). Edition 2024, MSRV in `Cargo.toml`, toolchain pinned in `rust-toolchain.toml`.
 
 ## Commands
 

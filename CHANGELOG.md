@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `try_get_executable_path`, `try_get_app_root_folder_by_executable` and `try_get_app_root_folder`: the same
+  lookups returning `Result<_, AppRootFolderError>` instead of panicking. The error enum (`#[non_exhaustive]`, no new
+  dependency) has one variant per former panic, with the same message; the panicking functions are unchanged.
+
 ## [0.1.1] - 2026-10-25
 
 ### Changed

@@ -1,6 +1,6 @@
 //! The root folder of the app.
 
-use crate::get_executable_path::{ExecutablePath, get_executable_path};
+use crate::get_executable_path::{AppRootFolderError, ExecutablePath, try_get_executable_path};
 use std::path::PathBuf;
 
 /// Path to the app root folder.
@@ -13,7 +13,7 @@ use std::path::PathBuf;
 /// If the binary is moved out of the build folder, it is the folder of the binary.
 pub type AppRootFolderPath = PathBuf;
 
-/// Returns the app root folder for the given executable.
+/// Returns the app root folder for the given executable, or why it cannot be found.
 ///
 /// If the executable's folder is a cargo build folder (it holds a `.cargo-lock` file), the result is the nearest parent
 /// folder that contains a `target` folder, for example:
@@ -24,6 +24,61 @@ pub type AppRootFolderPath = PathBuf;
 /// - `target/{target}/release`
 ///
 /// Otherwise the folder of the executable already is the app root folder.
+///
+/// # Errors
+///
+/// [`AppRootFolderError::NoParent`] if the executable has no parent folder, [`AppRootFolderError::NoTargetFolder`] if
+/// no parent folder with a `target` folder is found while going up from a build folder,
+/// [`AppRootFolderError::RootMissing`] if the resulting folder does not exist.
+///
+/// # Examples
+///
+/// ```rust
+/// use std::path::Path;
+///
+/// // Not a cargo build folder: the folder of the executable is the root.
+/// let executable = std::env::current_exe()?;
+/// let root = app_root_folder::try_get_app_root_folder_by_executable(&executable)?;
+/// assert_eq!(root, executable.parent().unwrap_or(Path::new("/")));
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+pub fn try_get_app_root_folder_by_executable(
+    executable: &ExecutablePath,
+) -> Result<AppRootFolderPath, AppRootFolderError> {
+    let main_folder_candidate =
+        executable
+            .parent()
+            .ok_or_else(|| AppRootFolderError::NoParent {
+                path: executable.clone(),
+            })?;
+
+    // TODO: ? Make better indicator?
+    let build_folder_indicator = main_folder_candidate.join(".cargo-lock");
+
+    let root: PathBuf = if build_folder_indicator.exists() {
+        // The executable is in the target/..., we need to go up.
+        main_folder_candidate
+            .ancestors()
+            .find(|folder| folder.join("target").exists())
+            .ok_or_else(|| AppRootFolderError::NoTargetFolder {
+                path: executable.clone(),
+            })?
+            .into()
+    } else {
+        // The parent of the binary is already the app root folder.
+        main_folder_candidate.into()
+    };
+
+    if root.exists() {
+        Ok(root)
+    } else {
+        Err(AppRootFolderError::RootMissing { path: root })
+    }
+}
+
+/// Returns the app root folder for the given executable.
+///
+/// The rule is in [`try_get_app_root_folder_by_executable`].
 ///
 /// # Panics
 ///
@@ -41,52 +96,35 @@ pub type AppRootFolderPath = PathBuf;
 /// ```
 #[must_use]
 pub fn get_app_root_folder_by_executable(executable: &ExecutablePath) -> AppRootFolderPath {
-    let main_folder_candidate: PathBuf = executable
-        .parent()
-        .unwrap_or_else(|| {
-            panic!(
-                "The executable has no parent folder: {}",
-                executable.display()
-            )
-        })
-        .into();
+    try_get_app_root_folder_by_executable(executable).unwrap_or_else(|error| panic!("{error}"))
+}
 
-    // TODO: ? Make better indicator?
-    let build_folder_indicator = main_folder_candidate.join(".cargo-lock");
-
-    let root = if build_folder_indicator.exists() {
-        // The executable is in the target/..., we need to go up.
-        main_folder_candidate
-            .ancestors()
-            .find(|folder| folder.join("target").exists())
-            .unwrap_or_else(|| {
-                panic!(
-                    "No parent folder with a 'target' folder for: {}",
-                    executable.display()
-                )
-            })
-            .into()
-    } else {
-        // The parent of the binary is already the app root folder.
-        main_folder_candidate
-    };
-
-    assert!(
-        root.exists(),
-        "The main folder does not exist: {}",
-        root.display()
-    );
-
-    root
+/// Returns the app root folder of the running executable, or why it cannot be found.
+///
+/// The rule is in [`try_get_app_root_folder_by_executable`].
+///
+/// # Errors
+///
+/// The errors of [`try_get_executable_path`] and [`try_get_app_root_folder_by_executable`].
+///
+/// # Examples
+///
+/// ```rust
+/// let root = app_root_folder::try_get_app_root_folder()?;
+/// assert!(root.is_dir());
+/// # Ok::<(), app_root_folder::AppRootFolderError>(())
+/// ```
+pub fn try_get_app_root_folder() -> Result<AppRootFolderPath, AppRootFolderError> {
+    try_get_app_root_folder_by_executable(&try_get_executable_path()?)
 }
 
 /// Returns the app root folder of the running executable.
 ///
-/// See [`get_app_root_folder_by_executable`] for the rule.
+/// The rule is in [`try_get_app_root_folder_by_executable`].
 ///
 /// # Panics
 ///
-/// Panics in the same cases as [`get_executable_path()`] and [`get_app_root_folder_by_executable()`].
+/// Panics in the cases where [`try_get_app_root_folder`] returns an error.
 ///
 /// # Examples
 ///
@@ -96,7 +134,7 @@ pub fn get_app_root_folder_by_executable(executable: &ExecutablePath) -> AppRoot
 /// ```
 #[must_use]
 pub fn get_app_root_folder() -> AppRootFolderPath {
-    get_app_root_folder_by_executable(&get_executable_path())
+    try_get_app_root_folder().unwrap_or_else(|error| panic!("{error}"))
 }
 
 #[cfg(test)]
@@ -175,5 +213,45 @@ mod tests {
     #[test]
     fn running_app_has_an_existing_root_folder() {
         assert!(get_app_root_folder().is_dir());
+    }
+
+    #[test]
+    fn try_without_parent_is_no_parent() {
+        let executable = ExecutablePath::from("/");
+        let error = try_get_app_root_folder_by_executable(&executable).unwrap_err();
+        assert!(
+            matches!(&error, AppRootFolderError::NoParent { path } if path == Path::new("/")),
+            "{error:?}"
+        );
+    }
+
+    #[test]
+    fn try_build_folder_without_target_parent_is_no_target_folder() {
+        let scratch = Scratch::new("try_no_target");
+        let build = scratch.0.join("build");
+        fs::create_dir_all(&build).unwrap();
+        fs::write(build.join(".cargo-lock"), "").unwrap();
+        let executable = executable_in(&build);
+        let error = try_get_app_root_folder_by_executable(&executable).unwrap_err();
+        assert!(
+            matches!(&error, AppRootFolderError::NoTargetFolder { path } if *path == executable),
+            "{error:?}"
+        );
+    }
+
+    #[test]
+    fn try_missing_folder_is_root_missing() {
+        let scratch = Scratch::new("try_missing");
+        let missing = scratch.0.join("gone");
+        let error = try_get_app_root_folder_by_executable(&missing.join("app")).unwrap_err();
+        assert!(
+            matches!(&error, AppRootFolderError::RootMissing { path } if *path == missing),
+            "{error:?}"
+        );
+    }
+
+    #[test]
+    fn try_running_app_has_an_existing_root_folder() {
+        assert!(try_get_app_root_folder().unwrap().is_dir());
     }
 }
