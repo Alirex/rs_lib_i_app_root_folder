@@ -1,0 +1,6 @@
+# Structural markdown checks only; line length is not enforced.
+default: true
+MD013: false # line length
+MD033: false # inline HTML
+MD041: false # first line a heading
+MD024: false # duplicate headings (a changelog repeats Added/Fixed)

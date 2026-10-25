@@ -1,3 +1,24 @@
 /target
 
-.idea/git_toolbox_prj.xml
+# JetBrains: ignore all, then keep what is shared and machine-independent (practices/gitignore-and-ide.md in evocaslab/hq)
+.idea/**
+!.idea/*.iml
+!.idea/modules.xml
+!.idea/misc.xml
+!.idea/vcs.xml
+!.idea/codeStyles/
+!.idea/codeStyles/**
+!.idea/runConfigurations/
+!.idea/runConfigurations/**
+
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Claude Code: per-machine settings
+.claude/settings.local.json
+.worktrees/
+.claude/worktrees/
+*.local.md
