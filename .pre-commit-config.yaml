@@ -60,7 +60,7 @@ repos:
     hooks:
       - id: rust-format
         name: Rust format
-        entry: cargo fmt --all --
+        entry: scripts/quality/cargo.sh fmt --all --
         pass_filenames: false
         types: [rust]
         language: system
@@ -68,21 +68,21 @@ repos:
       - id: rust-clippy
         name: Rust clippy
         # Lints are warn in Cargo.toml [lints]; the gate turns every warning into an error.
-        entry: cargo clippy --locked --all-targets --all-features -- -D warnings
+        entry: scripts/quality/cargo.sh clippy --locked --all-targets --all-features -- -D warnings
         pass_filenames: false
         types: [rust]
         language: system
 
       - id: rust-tests
         name: Rust tests (unit and doc tests)
-        entry: cargo test --locked --all-features
+        entry: scripts/quality/cargo.sh test --locked --all-features
         pass_filenames: false
         types: [rust]
         language: system
 
       - id: rust-doc
         name: Rust doc (broken links are errors)
-        entry: env RUSTDOCFLAGS=-Dwarnings cargo doc --locked --no-deps --all-features
+        entry: env RUSTDOCFLAGS=-Dwarnings scripts/quality/cargo.sh doc --locked --no-deps --all-features
         pass_filenames: false
         types: [rust]
         language: system

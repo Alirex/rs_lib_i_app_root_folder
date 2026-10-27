@@ -10,8 +10,8 @@ default:
 [group('quality')]
 q-check:
     SKIP=pre-commit-update prek run --all-files
-    cargo deny check
-    cargo package --locked --allow-dirty
+    scripts/quality/cargo.sh deny check
+    scripts/quality/cargo.sh package --locked --allow-dirty
 
 # Fast loop: prek hooks only (no network).
 [group('quality')]
@@ -21,12 +21,12 @@ q-fast:
 # Run the unit tests and doc tests.
 [group('quality')]
 q-test *args:
-    cargo test --locked {{ args }}
+    scripts/quality/cargo.sh test --locked {{ args }}
 
 # Supply chain: RustSec advisories, licenses, bans, sources (fetches the advisory database).
 [group('quality')]
 q-deny:
-    cargo deny check
+    scripts/quality/cargo.sh deny check
 
 # Scan the whole git history for leaked secrets (gitleaks; monthly and when adopting).
 [group('quality')]
@@ -41,7 +41,7 @@ dev-hooks:
 # Upgrade dependencies in Cargo.lock (read the diff; run q-check after).
 [group('dev')]
 dev-update:
-    cargo update
+    scripts/quality/cargo.sh update
 
 # Fail unless the tag (default: HEAD's tag) equals the Cargo.toml version and the changelog has that section.
 [group('release')]
@@ -50,7 +50,7 @@ rel-check tag="":
     set -euo pipefail
     tag="{{ tag }}"
     [[ -n "$tag" ]] || tag="$(git describe --exact-match --tags HEAD)"
-    version="$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')"
+    version="$(scripts/quality/cargo.sh metadata --no-deps --format-version 1 | jq -r '.packages[0].version')"
     if [[ "$tag" != "v$version" ]]; then
         echo "tag $tag differs from Cargo.toml version $version" >&2
         exit 1
@@ -61,4 +61,4 @@ rel-check tag="":
 # Dry-run of the publish (no upload). The real publish runs from the tag in CI (release.yml).
 [group('release')]
 rel-dry-run:
-    cargo publish --dry-run --locked
+    scripts/quality/cargo.sh publish --dry-run --locked
