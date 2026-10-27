@@ -96,6 +96,10 @@ pub fn try_get_app_root_folder_by_executable(
 /// ```
 #[must_use]
 pub fn get_app_root_folder_by_executable(executable: &ExecutablePath) -> AppRootFolderPath {
+    #[expect(
+        clippy::panic,
+        reason = "the panicking twin of the try_ function, documented under # Panics"
+    )]
     try_get_app_root_folder_by_executable(executable).unwrap_or_else(|error| panic!("{error}"))
 }
 
@@ -134,6 +138,10 @@ pub fn try_get_app_root_folder() -> Result<AppRootFolderPath, AppRootFolderError
 /// ```
 #[must_use]
 pub fn get_app_root_folder() -> AppRootFolderPath {
+    #[expect(
+        clippy::panic,
+        reason = "the panicking twin of the try_ function, documented under # Panics"
+    )]
     try_get_app_root_folder().unwrap_or_else(|error| panic!("{error}"))
 }
 
@@ -150,7 +158,9 @@ mod tests {
         fn new(name: &str) -> Self {
             let path =
                 std::env::temp_dir().join(format!("app_root_folder_{}_{name}", std::process::id()));
-            let _ = fs::remove_dir_all(&path);
+            if let Err(error) = fs::remove_dir_all(&path) {
+                assert_eq!(error.kind(), std::io::ErrorKind::NotFound, "{error}");
+            }
             fs::create_dir_all(&path).unwrap();
             Self(path)
         }
@@ -158,6 +168,10 @@ mod tests {
 
     impl Drop for Scratch {
         fn drop(&mut self) {
+            #[expect(
+                clippy::let_underscore_must_use,
+                reason = "cleanup on drop; a leftover temp folder is harmless"
+            )]
             let _ = fs::remove_dir_all(&self.0);
         }
     }
@@ -207,7 +221,7 @@ mod tests {
         fs::create_dir_all(&build).unwrap();
         fs::write(build.join(".cargo-lock"), "").unwrap();
         let executable = executable_in(&build);
-        let _ = get_app_root_folder_by_executable(&executable);
+        let _root = get_app_root_folder_by_executable(&executable);
     }
 
     #[test]

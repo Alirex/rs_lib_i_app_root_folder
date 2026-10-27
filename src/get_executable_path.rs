@@ -111,5 +111,9 @@ pub fn try_get_executable_path() -> Result<ExecutablePath, AppRootFolderError> {
 /// ```
 #[must_use]
 pub fn get_executable_path() -> ExecutablePath {
+    #[expect(
+        clippy::panic,
+        reason = "the panicking twin of the try_ function, documented under # Panics"
+    )]
     try_get_executable_path().unwrap_or_else(|error| panic!("{error}"))
 }

@@ -17,8 +17,10 @@ check` and `cargo package`. `just q-fast`: hooks only, no network. `just q-test`
 
 ## Rules
 
-- Lints are `warn` in `Cargo.toml [lints]` (pedantic, no `unwrap`/`expect`/`dbg!`/`print!`) and the gate makes them errors.
-  Fix the finding; suppress only with `#[expect(lint, reason = "...")]`, never `#[allow]`.
+- Lints are `warn` in `Cargo.toml [lints]` (clippy `pedantic`, `nursery` and `cargo` groups plus picked restriction
+  lints: no `unwrap`/`expect`/`panic!`/`unreachable!`/`dbg!`/`print!`) and the gate makes them errors. Fix the finding;
+  suppress only with `#[expect(lint, reason = "...")]` on the smallest item, never `#[allow]`.
+  [rust-service lints](https://github.com/evocaslab/hq/blob/main/practices/rust-service.md#lints),
   [lint-strictness](https://github.com/evocaslab/hq/blob/main/practices/lint-strictness.md)
 - Every public function documents `# Panics` (or `# Errors`) and has a doc test; the gate builds docs with warnings as errors.
   Tests must pass on Linux, macOS and Windows (CI runs all three).
