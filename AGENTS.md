@@ -44,4 +44,9 @@ section. Never publish locally (`just rel-dry-run` only).
 
 ## Reasoning
 
+- To find HQ practices or backlog items, call the `hq` MCP tools first (`practices_for`, `practices_get`,
+  `practices_search`, `backlog_list`, `backlog_get`; load them with ToolSearch `hq`); fall back to the HQ checkout's
+  files and `just` when the server is not connected.
+  [Reasoning](https://github.com/evocaslab/hq/blob/main/practices/agent-instructions.md#use-the-mcp-for-practices-and-tasks).
+
 Shared best practices and the reasons behind these rules: <https://github.com/evocaslab/hq/tree/main/practices>
