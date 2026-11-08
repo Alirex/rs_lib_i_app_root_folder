@@ -5,6 +5,8 @@ executable's folder, or the folder with `target` when run from a cargo build fol
 `get_app_root_folder`, `get_app_root_folder_by_executable`, `get_executable_path`, their `try_` variants and
 `AppRootFolderError` (`src/`). Edition 2024, MSRV in `Cargo.toml`, toolchain pinned in `rust-toolchain.toml`.
 
+- The README is the front door: it starts with how to run the repo and is updated in the same commit as any change to a command, recipe, config key, check or layout; run its Quick start once before landing ([HQ docs-match-code](https://github.com/evocaslab/hq/blob/main/practices/docs-match-code.md#the-readme-is-the-front-door)).
+
 ## Commands
 
 [just](https://just.systems) is the entry point (`just` lists recipes).
