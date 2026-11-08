@@ -24,7 +24,7 @@ repos:
       - id: markdownlint
 
   - repo: https://github.com/Alirex/pre-commit-just
-    rev: v0.2.1
+    rev: v0.2.2
     hooks:
       - id: format-justfile
 
