@@ -1,0 +1,99 @@
+# What this repo needs, by context. Schema and rules: HQ practices/needs-by-context.md.
+# Check:  scripts/needs.py lint && scripts/needs.py check --context develop
+# Render: scripts/needs.py render   (the README table between the needs markers)
+version: 1
+needs:
+  - kind: tool
+    name: cargo
+    contexts: [develop, test, ci, release]
+    level: required
+    why: builds, tests and packages the crate; the compiler is pinned by rust-toolchain.toml
+    pinned_by: rust-toolchain.toml
+    check: command
+    fix: install rustup (https://rustup.rs); it reads rust-toolchain.toml
+  - kind: tool
+    name: rustfmt
+    contexts: [develop, ci]
+    level: required
+    why: format hook (component listed in rust-toolchain.toml)
+    pinned_by: rust-toolchain.toml
+    check: command
+    fix: rustup component add rustfmt
+  - kind: tool
+    name: cargo-clippy
+    contexts: [develop, ci]
+    level: required
+    why: lint hook with -D warnings (component listed in rust-toolchain.toml)
+    pinned_by: rust-toolchain.toml
+    check: command
+    fix: rustup component add clippy
+  - kind: tool
+    name: cargo-deny
+    contexts: [develop, ci]
+    level: required
+    why: just q-check runs cargo deny check; CI uses cargo-deny-action
+    check: command
+    fix: cargo install --locked cargo-deny
+  - kind: tool
+    name: git
+    contexts: [develop, ci, release]
+    level: required
+    why: version control and tag-based release
+    check: command
+    fix: install git
+  - kind: tool
+    name: just
+    contexts: [develop, ci]
+    level: required
+    why: task runner for the q-check gate and dev recipes
+    min: "1.40"
+    check: command
+    fix: install just (https://just.systems)
+  - kind: tool
+    name: prek
+    contexts: [develop, ci]
+    level: required
+    why: runs the quality gate hooks (uvx prek in CI)
+    check: command
+    fix: uv tool install prek
+  - kind: tool
+    name: uv
+    contexts: [develop, ci]
+    level: required
+    why: runs scripts/needs.py and prek
+    check: command
+    fix: curl -LsSf https://astral.sh/uv/install.sh | sh
+  - kind: tool
+    name: node
+    contexts: [develop, ci]
+    level: required
+    why: markdownlint and prettier hooks need Node.js on PATH
+    check: command
+    fix: install Node LTS (https://nodejs.org)
+  - kind: tool
+    name: jq
+    contexts: [develop, ci, release]
+    level: required
+    why: just rel-check and the msrv CI job read the version from cargo metadata
+    check: command
+    fix: sudo apt install jq
+  - kind: tool
+    name: gh
+    contexts: [develop, release]
+    level: optional
+    why: pull requests, issues and checking CI runs
+    fallback: use the GitHub web UI
+    check: command
+    fix: install GitHub CLI, then gh auth login
+  - kind: network
+    contexts: [develop, test, ci, release]
+    level: required
+    why: cargo fetches dependencies; the release workflow publishes by trusted publishing
+    check: none
+    hosts: [crates.io, static.crates.io, index.crates.io]
+  - kind: network
+    contexts: [develop, ci, release]
+    level: required
+    why: prek downloads the hook repositories; CI and the release run there
+    check: none
+    hosts: [github.com]
