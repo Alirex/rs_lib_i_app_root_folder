@@ -24,6 +24,10 @@ check` and `cargo package`. `just q-fast`: hooks only, no network. `just q-test`
   suppress only with `#[expect(lint, reason = "...")]` on the smallest item, never `#[allow]`.
   [rust-service lints](https://github.com/evocaslab/hq/blob/main/practices/rust-service.md#lints),
   [lint-strictness](https://github.com/evocaslab/hq/blob/main/practices/lint-strictness.md)
+- Change repo files with the Edit and Write tools, never `cat >`, `sed -i` or a heredoc through Bash: the command guard
+  denies them and every denial costs a turn. For a change in many files, Write a script and run it. Reasons:
+  [practices/agent-instructions.md](https://github.com/evocaslab/hq/blob/main/practices/agent-instructions.md).
+- Conformance: edit-rule-present
 - Every public function documents `# Panics` (or `# Errors`) and has a doc test; the gate builds docs with warnings as errors.
   Tests must pass on Linux, macOS and Windows (CI runs all three).
 - Dependencies: caret requirements, `cargo update` in its own commit with the lock diff read; `cargo deny check` is clean.
