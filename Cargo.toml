@@ -112,3 +112,10 @@ unneeded_field_pattern = "warn"
 unseparated_literal_suffix = "warn"
 unused_result_ok = "warn"
 verbose_file_reads = "warn"
+
+# Dev builds: line tables only for this crate, no debug info for dependencies (faster builds, smaller target/).
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
